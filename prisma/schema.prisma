@@ -16,50 +16,75 @@ datasource db {
 
 //users
 model User {
-  id                      String @id @default(cuid())
-  email                   String @unique
-  name                    String?
-  hashedpassword          String?
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  hashedPassword String?
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  //Relations
-  //one user can hace a one suscription
-  suscripcion             suscripcion?
-  //one user can hace a many orders
-  order                   Order[]
+
+  subscription   Subscription? 
+  orders         Order[]
 }
 
 //individual products
-model Product{
-  id                      String @id @default(cuid())
-  name                    String
-  description             String?
-  price                   Float
-  imageUrl                String?
-  stock                   Int
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?
+  stock       Int
+  
+
+  orderItems  OrderItem[] 
 }
 
 //suscriptions
-model Subscription{
-  id                      String @id @default(cuid())
-  userId                  String @unique
-  user                    User @relation(fields: [userId], references: [id])
-  stripeId                String @unique
-  stripeStatus            String // "active", "canceled", "incomplete", etc.
-  level                   String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+model Subscription {
+  id           String   @id @default(cuid())
+
+  userId       String   @unique
+
+  user         User     @relation(fields: [userId], references: [id])
+  
+  stripeId     String   @unique
+  stripeStatus String 
+  level        String
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
- 
+
+
+model Order {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  
+  status    String
+  total     Float
+  
+  items     OrderItem[]
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
 //intermediate model to connect orders with product
-model OrderItem{
-  id                      String @id @default(cuid())
-  orederId                String
-  order                   Order
-  productId               String
-  product                 Product
-  quantity                Int
-  priceAtTime             Float
+model OrderItem {
+  id          String  @id @default(cuid())
+  
+
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id])
+  
+
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  
+  quantity    Int
+  priceAtTime Float
 }
